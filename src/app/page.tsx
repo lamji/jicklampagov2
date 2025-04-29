@@ -1,103 +1,679 @@
+/** @format */
+
+"use client";
+
+import { config } from "@/lib/config";
+
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Mail,
+  ArrowUp,
+  Github,
+  Linkedin,
+  Twitter,
+  Briefcase,
+  Code,
+  Cpu,
+  MessageSquare,
+  Phone,
+} from "lucide-react";
 
-export default function Home() {
+export default function Portfolio() {
+  const [activeSection, setActiveSection] = useState("home");
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
+  const [formState, setFormState] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formStatus, setFormStatus] = useState<{
+    type: "success" | "error" | null;
+    message: string;
+  }>({ type: null, message: "" });
+
+  // Form handling functions
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { id, value } = e.target;
+    setFormState((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setFormStatus({ type: null, message: "" });
+
+    // Basic validation
+    if (!formState.name || !formState.email || !formState.message) {
+      setFormStatus({
+        type: "error",
+        message: "Please fill in all fields",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formState.email)) {
+      setFormStatus({
+        type: "error",
+        message: "Please enter a valid email address",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/send-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formState),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to send message");
+      }
+
+      // Reset form
+      setFormState({
+        name: "",
+        email: "",
+        message: "",
+      });
+      setFormStatus({
+        type: "success",
+        message: "Message sent successfully! I'll get back to you soon.",
+      });
+    } catch (error: unknown) {
+      console.error("Form submission error:", error);
+      setFormStatus({
+        type: "error",
+        message: "Failed to send message. Please try again later.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Sample projects data
+  const projects = [
+    {
+      id: 1,
+      title: "E-commerce Platform",
+      description:
+        "Built with React, Node.js, and MongoDB. Features payment integration, admin dashboard, and real-time inventory.",
+      impact: "Increased client revenue by 40% through improved UX",
+      tags: ["React", "Node.js", "MongoDB", "Stripe"],
+      link: "#",
+      image: "/window.svg",
+    },
+    {
+      id: 2,
+      title: "Task Management App",
+      description:
+        "Team collaboration tool with Firebase real-time updates, drag-and-drop interface, and role-based permissions.",
+      impact: "Adopted by 15+ teams at client company",
+      tags: ["Next.js", "Firebase", "Tailwind", "DnD"],
+      link: "/project/task",
+      image: "/task_edit.png",
+    },
+    {
+      id: 3,
+      title: "Weather Dashboard",
+      description:
+        "Real-time weather app with 5-day forecasts, location search, and interactive charts. Won local hackathon.",
+      impact: "4.8/5 user rating with 10k+ monthly active users",
+      tags: ["React", "OpenWeather API", "Chart.js", "Geolocation"],
+      link: "#",
+      image: "/globe.svg",
+    },
+  ];
+
+  // Skills data grouped by category
+  const frontendSkills = [
+    {
+      name: "JavaScript/ES6",
+      icon: <Code className="w-5 h-5" />,
+      level: "Expert",
+    },
+    { name: "React.js", icon: <Code className="w-5 h-5" />, level: "Expert" },
+    {
+      name: "Next.js",
+      icon: <Briefcase className="w-5 h-5" />,
+      level: "Advanced",
+    },
+    {
+      name: "TypeScript",
+      icon: <Code className="w-5 h-5" />,
+      level: "Advanced",
+    },
+    {
+      name: "Redux/Toolkit",
+      icon: <Cpu className="w-5 h-5" />,
+      level: "Advanced",
+    },
+    {
+      name: "React Query",
+      icon: <Cpu className="w-5 h-5" />,
+      level: "Advanced",
+    },
+    { name: "CSS3/Sass", icon: <Code className="w-5 h-5" />, level: "Expert" },
+    {
+      name: "Bootstrap 4/5",
+      icon: <Code className="w-5 h-5" />,
+      level: "Expert",
+    },
+    {
+      name: "Material UI",
+      icon: <Briefcase className="w-5 h-5" />,
+      level: "Advanced",
+    },
+    {
+      name: "React Bootstrap",
+      icon: <Briefcase className="w-5 h-5" />,
+      level: "Advanced",
+    },
+    { name: "jQuery", icon: <Code className="w-5 h-5" />, level: "Advanced" },
+  ];
+
+  const backendSkills = [
+    { name: "Node.js", icon: <Code className="w-5 h-5" />, level: "Advanced" },
+    {
+      name: "Express.js",
+      icon: <Code className="w-5 h-5" />,
+      level: "Advanced",
+    },
+    {
+      name: "MongoDB/NoSQL",
+      icon: <Cpu className="w-5 h-5" />,
+      level: "Advanced",
+    },
+    { name: "REST API", icon: <Code className="w-5 h-5" />, level: "Advanced" },
+    { name: "Git", icon: <Briefcase className="w-5 h-5" />, level: "Advanced" },
+  ];
+
+  // Handle scroll to detect active section
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = ["home", "about", "projects", "skills", "contact"];
+      const scrollPosition = window.scrollY + 100;
+
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const offsetTop = element.offsetTop;
+          const offsetHeight = element.offsetHeight;
+
+          if (
+            scrollPosition >= offsetTop &&
+            scrollPosition < offsetTop + offsetHeight
+          ) {
+            setActiveSection(section);
+            break;
+          }
+        }
+      }
+
+      setShowScrollToTop(window.scrollY > 300);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Scroll to section
+  const scrollTo = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      window.scrollTo({
+        top: element.offsetTop - 80,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  // Scroll to top
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Header */}
+      <header className="fixed w-full bg-background border-b z-50">
+        <div className="w-full max-w-screen-2xl mx-auto px-4 py-3 flex justify-between items-center">
+          <h1 className="text-lg font-semibold flex items-center gap-2">
+            <span className="bg-primary/10 text-primary p-2 rounded-lg">
+              <Briefcase className="h-4 w-4" />
+            </span>
+            <span>Jick Lampago</span>
+          </h1>
+          <nav className="hidden md:flex items-center gap-6">
+            {["home", "about", "projects", "skills", "contact"].map((item) => (
+              <button
+                key={item}
+                onClick={() => scrollTo(item)}
+                className={`capitalize text-sm font-medium relative ${
+                  activeSection === item
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {item}
+                {activeSection === item && (
+                  <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary rounded-full" />
+                )}
+              </button>
+            ))}
+          </nav>
+          <Button
+            size="sm"
+            onClick={() => scrollTo("contact")}
+            className="ml-4"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            Hire Me
+          </Button>
         </div>
+      </header>
+
+      {/* Main Content */}
+      <main>
+        {/* Hero Section */}
+        <section
+          id="home"
+          className="min-h-screen pt-32 flex items-center bg-background"
+        >
+          <div className="container mx-auto max-w-5xl px-4">
+            <div className="flex flex-col md:flex-row items-center gap-12">
+              <div className="md:w-1/2">
+                <div className="text-sm font-medium text-primary mb-4 flex items-center gap-2">
+                  <span className="w-4 h-0.5 bg-primary mt-0.5" />
+                  FRONTEND DEVELOPER
+                </div>
+                <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+                  Building digital experiences that{" "}
+                  <span className="text-primary">users love</span>
+                </h1>
+                <p className="text-lg text-muted-foreground mb-8">
+                  I&apos;m Jick Lampago, a passionate frontend developer
+                  specializing in React and Next.js applications. I transform
+                  ideas into performant, accessible web experiences.
+                </p>
+                <div className="flex gap-4">
+                  <Button onClick={() => scrollTo("projects")}>
+                    View My Work
+                  </Button>
+                  <Button variant="outline" onClick={() => scrollTo("contact")}>
+                    Contact Me
+                  </Button>
+                </div>
+              </div>
+              <div className="md:w-1/2">
+                <div className="relative">
+                  <div className="absolute -top-4 -left-4 w-full h-full bg-primary/10 rounded-2xl" />
+                  <div className="relative bg-gradient-to-br from-background to-muted border rounded-2xl p-1">
+                    <Image
+                      src="/pf.png"
+                      alt="Profile"
+                      width={320}
+                      height={20}
+                      className="w-full h-80 object-cover rounded-xl"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* About Section */}
+        <section
+          id="about"
+          className="min-h-screen flex items-center px-4 bg-muted/50"
+        >
+          <div className="container mx-auto max-w-4xl">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4">About Me</h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                A detail-oriented developer who combines technical expertise
+                with user-focused design
+              </p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-8">
+              <div>
+                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <Briefcase className="w-5 h-5 text-primary" />
+                  Professional Journey
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  With 5+ years in frontend development, I&apos;ve helped
+                  startups and enterprises build products that users love. My
+                  approach combines technical excellence with business
+                  understanding.
+                </p>
+                <p className="text-muted-foreground">
+                  Currently specializing in React ecosystems, I stay at the
+                  forefront of web technologies while maintaining a strong
+                  foundation in core web principles.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <Cpu className="w-5 h-5 text-primary" />
+                  Technical Approach
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  I prioritize clean, maintainable code and believe in the power
+                  of component-driven development. Performance and accessibility
+                  are never afterthoughts in my workflow.
+                </p>
+                <p className="text-muted-foreground">
+                  Beyond coding, I enjoy mentoring junior developers and
+                  contributing to open source projects in my spare time.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Projects Section */}
+        <section id="projects" className="py-20 px-4 bg-background">
+          <div className="container mx-auto max-w-5xl">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4">Featured Projects</h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Selected work demonstrating my technical capabilities and
+                problem-solving approach
+              </p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              {projects.map((project) => (
+                <Card
+                  key={project.id}
+                  className="group hover:shadow-md transition-all duration-300 overflow-hidden border-muted/50 hover:border-primary/20 hover:-translate-y-1"
+                >
+                  <div className="relative h-48 overflow-hidden">
+                    <Image
+                      src={project.image}
+                      alt={project.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 backdrop-blur-sm">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="relative z-10"
+                        onClick={() => (window.location.href = project.link)}
+                      >
+                        View Project Details
+                      </Button>
+                    </div>
+                  </div>
+                  <CardContent className="p-6">
+                    <CardTitle className="text-xl mb-3 group-hover:text-primary transition-colors">
+                      {project.title}
+                    </CardTitle>
+                    <CardDescription className="mb-4 line-clamp-2">
+                      {project.description}
+                    </CardDescription>
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="h-1 w-1 rounded-full bg-primary/50" />
+                      <p className="text-sm text-primary font-medium">
+                        {project.impact}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-auto pt-4 border-t border-muted/30">
+                      {project.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-2.5 py-0.5 bg-primary/5 text-primary text-xs rounded-md font-medium hover:bg-primary/10 transition-colors"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Skills Section */}
+        <section id="skills" className="py-20 px-4 bg-muted/50">
+          <div className="container mx-auto max-w-4xl">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4">Technical Skills</h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                The tools and technologies I use to bring ideas to life
+              </p>
+            </div>
+
+            {/* Frontend Skills */}
+            <div className="mb-12">
+              <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
+                <Code className="w-5 h-5 text-primary" />
+                Frontend Development
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {frontendSkills.map((skill) => (
+                  <div
+                    key={skill.name}
+                    className="border rounded-lg p-4 hover:shadow-sm transition-shadow"
+                  >
+                    <div className="bg-primary/10 text-primary w-10 h-10 rounded-lg flex items-center justify-center mb-3">
+                      {skill.icon}
+                    </div>
+                    <h3 className="font-medium mb-1">{skill.name}</h3>
+                    <p className="text-xs text-muted-foreground">
+                      {skill.level}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Backend Skills */}
+            <div>
+              <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
+                <Cpu className="w-5 h-5 text-primary" />
+                Backend Development
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {backendSkills.map((skill) => (
+                  <div
+                    key={skill.name}
+                    className="border rounded-lg p-4 hover:shadow-sm transition-shadow"
+                  >
+                    <div className="bg-primary/10 text-primary w-10 h-10 rounded-lg flex items-center justify-center mb-3">
+                      {skill.icon}
+                    </div>
+                    <h3 className="font-medium mb-1">{skill.name}</h3>
+                    <p className="text-xs text-muted-foreground">
+                      {skill.level}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Contact Section */}
+        <section id="contact" className="py-20 px-4 bg-background">
+          <div className="container mx-auto max-w-4xl">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4">Let&apos;s Connect</h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Whether you have a project in mind or just want to chat tech,
+                I&apos;d love to hear from you
+              </p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-8">
+              <div>
+                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5 text-primary" />
+                  Get In Touch
+                </h3>
+                <p className="text-muted-foreground mb-6">
+                  I&apos;m currently open to new opportunities and
+                  collaborations. Reach out and let&apos;s discuss how I can
+                  contribute to your team or project.
+                </p>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <Mail className="text-muted-foreground" />
+                    <span className="text-muted-foreground">
+                      {config.recipientEmail}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Phone className="text-muted-foreground" />
+                    <span className="text-muted-foreground">
+                      Viber: 09490390624
+                    </span>
+                  </div>
+                </div>
+                <div className="flex gap-4 mt-6">
+                  <Button variant="outline" size="icon" asChild>
+                    <a
+                      href={config.socialLinks.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Github className="h-4 w-4" />
+                    </a>
+                  </Button>
+                  <Button variant="outline" size="icon" asChild>
+                    <a
+                      href={config.socialLinks.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Linkedin className="h-4 w-4" />
+                    </a>
+                  </Button>
+                  <Button variant="outline" size="icon" asChild>
+                    <a
+                      href={config.socialLinks.twitter}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Twitter className="h-4 w-4" />
+                    </a>
+                  </Button>
+                </div>
+              </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Send a Message</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Name</Label>
+                      <Input
+                        id="name"
+                        placeholder="Your name"
+                        value={formState.name}
+                        onChange={handleInputChange}
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="your@email.com"
+                        value={formState.email}
+                        onChange={handleInputChange}
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="message">Message</Label>
+                      <Textarea
+                        id="message"
+                        placeholder="Your message"
+                        rows={5}
+                        value={formState.message}
+                        onChange={handleInputChange}
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                    {formStatus.message && (
+                      <div
+                        className={`p-3 rounded-md text-sm ${
+                          formStatus.type === "success"
+                            ? "bg-green-500/10 text-green-500"
+                            : "bg-red-500/10 text-red-500"
+                        }`}
+                      >
+                        {formStatus.message}
+                      </div>
+                    )}
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Sending..." : "Send Message"}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+      {/* Footer */}
+      <footer className="py-8 px-4 border-t">
+        <div className="container mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <p className="text-sm text-muted-foreground">
+              © {new Date().getFullYear()} Jick Lampago. All rights reserved.
+            </p>
+          </div>
+        </div>
       </footer>
+
+      {/* Scroll to Top Button */}
+      {showScrollToTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-8 bg-primary text-primary-foreground p-3 rounded-full shadow-sm hover:bg-primary/90 transition-colors flex items-center justify-center"
+        >
+          <ArrowUp className="h-4 w-4" />
+        </button>
+      )}
     </div>
   );
 }
