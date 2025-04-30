@@ -2,10 +2,8 @@
 "use client";
 
 import * as React from "react";
-import { useState } from "react";
 import { OutputData } from "@editorjs/editorjs";
 import { Input } from "@/components/ui/input";
-import { format } from "date-fns";
 import {
   Sheet,
   SheetContent,
@@ -13,7 +11,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
-import { StatusBadge, TaskStatus } from "@/app/project/task/StatusBadge";
+import { StatusBadge, TaskStatus } from "@/app/project/task/Laptop/StatusBadge";
 import { Calendar } from "lucide-react";
 import {
   Select,
@@ -21,11 +19,11 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
-
 import dynamic from "next/dynamic";
 import { Task } from "@/types";
+import { useTaskViewModel } from "../useViewModel";
 
-const Editor = dynamic(() => import("../editor"), {
+const Editor = dynamic(() => import("../../editor"), {
   ssr: false,
 });
 
@@ -33,8 +31,6 @@ interface TaskDetailsProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   task: Task | null;
-  onUpdateDueDate: (taskId: string, date: Date | undefined) => void;
-  onUpdateStatus: (taskId: string, status: TaskStatus) => void;
   onAddNote: (taskId: string, content: OutputData) => void;
   onPinNote?: (taskId: string, noteId: string) => void;
 }
@@ -43,39 +39,16 @@ export default function TaskDetails({
   isOpen,
   onOpenChange,
   task,
-  onUpdateDueDate,
-  onUpdateStatus,
   onAddNote,
 }: TaskDetailsProps) {
-  const [currentStatus, setCurrentStatus] = useState<TaskStatus>(
-    task?.status || "Not Started"
-  );
-  const [editorData, setEditorData] = useState<OutputData>({
-    time: Date.now(),
-    blocks: [],
-  });
-
-  const handleStatusChange = (status: TaskStatus) => {
-    setCurrentStatus(status);
-    if (task) {
-      onUpdateStatus(task.id, status);
-    }
-  };
-
-  // Add a utility function to format dates
-  const formatDate = (isoString: string | undefined) => {
-    if (!isoString) return "";
-    return format(new Date(isoString), "MMMM d, yyyy");
-  };
-
-  React.useEffect(() => {
-    const contentData = {
-      time: task?.notes?.content?.time || Date.now(),
-      blocks: task?.notes?.content?.blocks || [],
-      version: task?.notes?.content?.version || "",
-    };
-    setEditorData(contentData);
-  }, [task]);
+  const {
+    currentDetailStatus,
+    currentDetailDueDate,
+    currentEditorData,
+    formatDate,
+    handleTaskStatusChange,
+    handleTaskDueDateChange,
+  } = useTaskViewModel();
 
   if (!task) return null;
 
@@ -94,11 +67,13 @@ export default function TaskDetails({
               <div className="space-y-2">
                 <h3 className="text-sm font-medium text-gray-500">Status</h3>
                 <Select
-                  value={currentStatus}
-                  onValueChange={handleStatusChange}
+                  value={currentDetailStatus}
+                  onValueChange={(status: TaskStatus) =>
+                    handleTaskStatusChange(task.id, status)
+                  }
                 >
                   <SelectTrigger className="w-[180px]">
-                    <StatusBadge status={currentStatus ?? "Not Started"} />
+                    <StatusBadge status={currentDetailStatus} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Not Started">
@@ -120,13 +95,13 @@ export default function TaskDetails({
                   <Input
                     id="dueDate"
                     type="date"
-                    value={task.dueDate ? task.dueDate.split("T")[0] : ""}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      onUpdateDueDate(
-                        task.id,
-                        e.target.value ? new Date(e.target.value) : undefined
-                      )
-                    }
+                    value={currentDetailDueDate}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      const newDate = e.target.value
+                        ? new Date(e.target.value)
+                        : undefined;
+                      handleTaskDueDateChange(task.id, newDate);
+                    }}
                     className="w-full pl-10"
                     min={new Date().toISOString().split("T")[0]}
                   />
@@ -151,7 +126,7 @@ export default function TaskDetails({
                   onAddNote(task.id, data);
                 }
               }}
-              initialData={editorData}
+              initialData={currentEditorData}
             />
           </div>
         </div>

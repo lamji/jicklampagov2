@@ -82,17 +82,19 @@ export default function Editor({ initialData, onChange }: EditorProps) {
             inlineToolbar: true,
           },
         },
-        data: initialData || {
-          blocks: [],
+        data: initialData || { blocks: [] },
+        onChange: async () => {
+          try {
+            await debouncedOnChange(editor);
+          } catch (error) {
+            console.error("Error during onChange:", error);
+          }
         },
-        onChange: () => debouncedOnChange(editor),
-        placeholder: "Let's write something!",
+        placeholder: "Type / to start writing...",
         autofocus: true,
         readOnly: false,
         minHeight: 200,
-        onReady: () => {
-          setIsEditorReady(true);
-        },
+        onReady: () => setIsEditorReady(true),
       });
 
       editorRef.current = editor;
