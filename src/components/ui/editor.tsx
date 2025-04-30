@@ -37,42 +37,51 @@ export function Editor({
   useEffect(() => {
     if (!isMounted) return;
 
-    // Initialize editor
-    const editor = new EditorJS({
-      holder: "editor",
-      tools: {
-        header: {
-          class: Header as unknown as BlockToolConstructable,
-          config: {
-            placeholder: "Enter a header",
-            levels: [1, 2],
-            defaultLevel: 1,
-          },
-        },
-        list: {
-          class: List as unknown as BlockToolConstructable,
-          inlineToolbar: true,
-          config: {
-            defaultStyle: "unordered",
-          },
-        },
-        paragraph: {
-          class: Paragraph as unknown as BlockToolConstructable,
-          inlineToolbar: true,
-        },
-      },
-      data: value,
-      placeholder: placeholder || "Type / for commands, or start writing...",
-      onChange: async () => {
-        const data = await editor.save();
-        onChange?.(data);
-      },
-    });
+    let editor: EditorJS;
 
-    editorRef.current = editor;
+    const initEditor = async () => {
+      // Initialize editor
+      editor = new EditorJS({
+        holder: "editor",
+        tools: {
+          header: {
+            class: Header as unknown as BlockToolConstructable,
+            config: {
+              placeholder: "Enter a header",
+              levels: [1, 2],
+              defaultLevel: 1,
+            },
+          },
+          list: {
+            class: List as unknown as BlockToolConstructable,
+            inlineToolbar: true,
+            config: {
+              defaultStyle: "unordered",
+            },
+          },
+          paragraph: {
+            class: Paragraph as unknown as BlockToolConstructable,
+            inlineToolbar: true,
+          },
+        },
+        data: value,
+        placeholder: placeholder || "Type / for commands, or start writing...",
+        onChange: async () => {
+          const data = await editor.save();
+          onChange?.(data);
+        },
+      });
+
+      editorRef.current = editor;
+    };
+
+    initEditor();
 
     return () => {
-      if (editorRef.current) {
+      if (
+        editorRef.current &&
+        typeof editorRef.current.destroy === "function"
+      ) {
         editorRef.current.destroy();
         editorRef.current = null;
       }

@@ -4,5 +4,6 @@
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit"
   },
-  "git.ignoreLimitWarning": true
+  "git.ignoreLimitWarning": true,
+  "cSpell.words": ["editorjs"]
 }
