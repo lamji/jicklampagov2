@@ -121,37 +121,55 @@ export default function Portfolio() {
   const projects = [
     {
       id: 1,
-      title: "E-commerce Platform",
+      title: "Branding Website (TimeX)",
       description:
-        "Built with React, Node.js, and MongoDB. Features payment integration, admin dashboard, and real-time inventory.",
-      impact: "Increased client revenue by 40% through improved UX",
-      tags: ["React", "Node.js", "MongoDB", "Stripe"],
-      link: "#",
-      image: "/window.svg",
+        "A modern branding website built using React, Node.js, Next.js, and Shadcn UI. Features include responsive design, optimized performance, and seamless user experience.",
+      impact: "Enhanced brand visibility and user engagement.",
+      tags: ["React", "Node.js", "Next js", "Shadcn"],
+      link: "https://branding-web-demo.vercel.app/",
+      image: "/branding_web.png",
     },
     {
       id: 2,
       title: "Task Management App",
       description:
-        "Team collaboration tool with Firebase real-time updates, drag-and-drop interface, and role-based permissions.",
-      impact: "Adopted by 15+ teams at client company",
-      tags: ["Next.js", "Firebase", "Tailwind", "DnD"],
+        "A collaborative task management tool with real-time updates powered by Firebase, an intuitive drag-and-drop interface, and robust role-based permissions for team productivity.",
+      impact: "Streamlined team workflows and improved task tracking.",
+      tags: ["Next.js", "Redux", "Tailwind", "DnD"],
       link: "/project/task",
       image: "/task_edit.png",
     },
     {
       id: 3,
-      title: "Weather Dashboard",
+      title: "COVID-19 Tracker",
       description:
-        "Real-time weather app with 5-day forecasts, location search, and interactive charts. Won local hackathon.",
-      impact: "4.8/5 user rating with 10k+ monthly active users",
-      tags: ["React", "OpenWeather API", "Chart.js", "Geolocation"],
-      link: "#",
-      image: "/globe.svg",
+        "An interactive COVID-19 tracker providing real-time global and local statistics, dynamic charts, and geolocation-based data. Recognized as a winner in a local hackathon.",
+      impact: "Improved accessibility to critical pandemic data for users.",
+      tags: ["React", "Rapid API", "Chart.js", "Geolocation", "Next Js"],
+      link: "https://covid19-tracker-v-2.vercel.app",
+      image: "/covid_19.png",
     },
   ];
 
   // Skills data grouped by category
+  const aiToolsSkills = [
+    {
+      name: "AI Development",
+      icon: <Cpu className="w-5 h-5" />,
+      level: "Intermediate",
+    },
+    {
+      name: "GitHub Copilot",
+      icon: <Code className="w-5 h-5" />,
+      level: "Intermediate",
+    },
+    {
+      name: "Prompt Engineering",
+      icon: <MessageSquare className="w-5 h-5" />,
+      level: "Intermediate",
+    },
+  ];
+
   const frontendSkills = [
     {
       name: "JavaScript/ES6",
@@ -411,48 +429,51 @@ export default function Portfolio() {
                 problem-solving approach
               </p>
             </div>
-            <div className="grid md:grid-cols-2 gap-6">
+
+            <div className="grid md:grid-cols-2 gap-8">
               {projects.map((project) => (
                 <Card
                   key={project.id}
-                  className="group hover:shadow-md transition-all duration-300 overflow-hidden border-muted/50 hover:border-primary/20 hover:-translate-y-1"
+                  className="group bg-background/50 backdrop-blur-xl border border-white/10 hover:border-white/20 rounded-2xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5"
                 >
-                  <div className="relative h-48 overflow-hidden">
+                  <div className="relative aspect-[16/9] w-full overflow-hidden">
                     <Image
                       src={project.image}
                       alt={project.title}
                       fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="object-cover object-center transition-transform duration-700 group-hover:scale-110"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      priority
                     />
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 backdrop-blur-sm">
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/5 to-background/80" />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 bg-gradient-to-b from-black/5 to-background/90 backdrop-blur-md">
                       <Button
-                        variant="outline"
-                        size="sm"
-                        className="relative z-10"
+                        variant="secondary"
+                        className="relative z-10 bg-white/90 hover:bg-white text-primary hover:text-primary/80 border-0 shadow-lg backdrop-blur-xl px-8 py-6 rounded-full font-medium transition-all duration-300 hover:scale-105"
                         onClick={() => (window.location.href = project.link)}
                       >
-                        View Project Details
+                        Explore Project
                       </Button>
                     </div>
                   </div>
-                  <CardContent className="p-6">
-                    <CardTitle className="text-xl mb-3 group-hover:text-primary transition-colors">
+                  <CardContent className="p-6 space-y-4">
+                    <CardTitle className="text-2xl font-medium tracking-tight group-hover:text-primary transition-colors duration-300">
                       {project.title}
                     </CardTitle>
-                    <CardDescription className="mb-4 line-clamp-2">
+                    <CardDescription className="text-base text-muted-foreground/80 line-clamp-2">
                       {project.description}
                     </CardDescription>
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="h-1 w-1 rounded-full bg-primary/50" />
-                      <p className="text-sm text-primary font-medium">
+                    <div className="flex items-center gap-2">
+                      <div className="h-1 w-1 rounded-full bg-primary" />
+                      <p className="text-sm text-primary/80 font-medium">
                         {project.impact}
                       </p>
                     </div>
-                    <div className="flex flex-wrap gap-2 mt-auto pt-4 border-t border-muted/30">
-                      {project.tags.map((tag) => (
+                    <div className="flex flex-wrap gap-2 pt-4 border-t border-white/5">
+                      {project.tags.map((tag: string) => (
                         <span
                           key={tag}
-                          className="px-2.5 py-0.5 bg-primary/5 text-primary text-xs rounded-md font-medium hover:bg-primary/10 transition-colors"
+                          className="px-3 py-1 bg-white/5 hover:bg-white/10 text-xs font-medium text-primary/80 rounded-full transition-colors"
                         >
                           {tag}
                         </span>
@@ -473,6 +494,30 @@ export default function Portfolio() {
               <p className="text-muted-foreground max-w-2xl mx-auto">
                 The tools and technologies I use to bring ideas to life
               </p>
+            </div>
+
+            {/* AI & Development Tools */}
+            <div className="mb-12">
+              <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
+                <Cpu className="w-5 h-5 text-primary" />
+                AI & Development Tools
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {aiToolsSkills.map((skill) => (
+                  <div
+                    key={skill.name}
+                    className="border rounded-lg p-4 hover:shadow-sm transition-shadow"
+                  >
+                    <div className="bg-primary/10 text-primary w-10 h-10 rounded-lg flex items-center justify-center mb-3">
+                      {skill.icon}
+                    </div>
+                    <h3 className="font-medium mb-1">{skill.name}</h3>
+                    <p className="text-xs text-muted-foreground">
+                      {skill.level}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Frontend Skills */}
