@@ -149,6 +149,16 @@ export default function Portfolio() {
       link: "https://covid19-tracker-v-2.vercel.app",
       image: "/covid_19.png",
     },
+    {
+      id: 4,
+      title: "Isolar",
+      description:
+        "A solar energy management platform providing real-time monitoring, analytics, and optimization for solar panel performance.",
+      impact: "Increased efficiency and reduced energy costs for users.",
+      tags: ["React", "Node.js", "Next.js", "shadcn UI"],
+      link: "https://i-solar.vercel.app",
+      image: "/isolar.png",
+    },
   ];
 
   // Skills data grouped by category
