@@ -159,6 +159,16 @@ export default function Portfolio() {
       link: "https://i-solar.vercel.app",
       image: "/isolar.png",
     },
+    {
+      id: 5,
+      title: "Coffee Shop",
+      description:
+        "A coffee shop website showcasing the menu, ambiance, and online ordering features.",
+      impact: "Increased customer engagement and streamlined ordering process.",
+      tags: ["React", "Node.js", "Next.js", "shadcn UI"],
+      link: "https://coffelove.vercel.app/",
+      image: "/coffee_shop.png",
+    },
   ];
 
   // Skills data grouped by category
